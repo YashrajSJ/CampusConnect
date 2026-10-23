@@ -254,7 +254,7 @@ All routes require a Clerk session token in `Authorization: Bearer <token>` exce
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/Ishangitt/CampusConnect.git
+git clone https://github.com/YashrajSJ/CampusConnect.git
 cd CampusConnect
 npm install
 npm run install:all

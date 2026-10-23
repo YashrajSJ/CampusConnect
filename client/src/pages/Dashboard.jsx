@@ -43,7 +43,7 @@ export default function Dashboard() {
     load();
   }, []);
 
-  if (loading) return <Loader label="Loading your command centre..." />;
+  if (loading) return <Loader label="Loading your campus hub..." />;
 
   if (error) {
     return (
@@ -87,7 +87,7 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800 border border-amber-200/60">
-              <Sparkles size={13} className="text-amber-500" /> Command Centre
+              <Sparkles size={13} className="text-amber-500" /> Campus Hub
             </span>
             {data.user.college && (
               <span className="text-xs font-medium text-slate-400">

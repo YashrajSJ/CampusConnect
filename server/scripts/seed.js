@@ -1,0 +1,439 @@
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, "../.env") });
+
+import mongoose from "mongoose";
+import User from "../models/User.js";
+import Project from "../models/Project.js";
+import JoinRequest from "../models/JoinRequest.js";
+
+const SEED_USERS = [
+  {
+    clerkId: "seed_user_aryan_dtu",
+    name: "Aryan Sharma",
+    email: "aryan.sharma@dtu.ac.in",
+    college: "Delhi Technological University (DTU)",
+    branch: "Computer Science & Engineering",
+    year: "3rd Year",
+    headline: "Full Stack MERN Enthusiast · Open Source Contributor",
+    bio: "Passionate about building scalable web apps, clean REST APIs, and developer tools. Active participant in university hackathons and tech fests.",
+    preferredRoles: ["Full Stack Developer", "Backend Developer"],
+    isOpenToCollaborate: true,
+    commitment: "8-12 hrs/week",
+    skills: ["React", "Node.js", "Express", "MongoDB", "JavaScript", "Git"],
+    interests: ["Hackathons", "Web3", "Distributed Systems", "Open Source"],
+    github: "https://github.com/aryan-sharma-dev",
+    linkedin: "https://linkedin.com/in/aryan-sharma",
+  },
+  {
+    clerkId: "seed_user_sneha_iitd",
+    name: "Sneha Patel",
+    email: "sneha.patel@iitd.ac.in",
+    college: "IIT Delhi",
+    branch: "Information Technology",
+    year: "2nd Year",
+    headline: "AI / ML Researcher & Python Developer",
+    bio: "Exploring applied NLP, conversational agents, and LLMs for educational tooling. Love collaborating with frontend devs to turn models into intuitive web tools.",
+    preferredRoles: ["AI / ML Engineer", "Data Analyst"],
+    isOpenToCollaborate: true,
+    commitment: "6-10 hrs/week",
+    skills: ["Python", "Algorithms", "Data Structures", "SQL", "Git"],
+    interests: ["Machine Learning", "NLP", "EdTech", "Competitive Programming"],
+    github: "https://github.com/sneha-patel-ai",
+    linkedin: "https://linkedin.com/in/sneha-patel",
+  },
+  {
+    clerkId: "seed_user_rohan_nsut",
+    name: "Rohan Verma",
+    email: "rohan.v@nsut.ac.in",
+    college: "Netaji Subhas University of Technology (NSUT)",
+    branch: "Electronics & Communication",
+    year: "4th Year",
+    headline: "Backend Systems Builder & Microservices Enthusiast",
+    bio: "Focused on high-performance backend pipelines, SQL indexing, and reliable authentication systems. Finalist at Smart India Hackathon 2025.",
+    preferredRoles: ["Backend Developer", "General Collaborator"],
+    isOpenToCollaborate: true,
+    commitment: "10-15 hrs/week",
+    skills: ["Node.js", "Express", "SQL", "MongoDB", "C++", "Git"],
+    interests: ["System Design", "Cloud Infrastructure", "APIs", "Robotics"],
+    github: "https://github.com/rohan-verma-sys",
+    linkedin: "https://linkedin.com/in/rohanverma",
+  },
+  {
+    clerkId: "seed_user_ananya_bits",
+    name: "Ananya Gupta",
+    email: "ananya.g@pilani.bits-pilani.ac.in",
+    college: "BITS Pilani",
+    branch: "Computer Science",
+    year: "3rd Year",
+    headline: "Frontend UI/UX Specialist & React Developer",
+    bio: "Obsessed with responsive design, accessibility, and sleek student-friendly dashboards. Enjoy prototyping in Figma and translating them into React + Tailwind apps.",
+    preferredRoles: ["Frontend Developer", "UI / UX Designer"],
+    isOpenToCollaborate: true,
+    commitment: "5-10 hrs/week",
+    skills: ["React", "JavaScript", "HTML", "CSS", "Git"],
+    interests: ["Design Systems", "Web Accessibility", "Frontend Perf", "Hackathons"],
+    github: "https://github.com/ananya-gupta-ui",
+    linkedin: "https://linkedin.com/in/ananyagupta",
+  },
+  {
+    clerkId: "seed_user_aditya_vit",
+    name: "Aditya Nair",
+    email: "aditya.nair@vitstudent.ac.in",
+    college: "Vellore Institute of Technology (VIT)",
+    branch: "Computer Science (Data Science)",
+    year: "3rd Year",
+    headline: "Data Analyst & IoT Smart Campus Innovator",
+    bio: "Building data pipelines for campus facilities and energy tracking. Experienced with relational database design and Python statistical modeling.",
+    preferredRoles: ["Data Analyst", "Mobile Developer"],
+    isOpenToCollaborate: true,
+    commitment: "6-8 hrs/week",
+    skills: ["Python", "SQL", "Java", "Data Structures", "Algorithms"],
+    interests: ["Smart Cities", "IoT", "Data Visualization", "Open Data"],
+    github: "https://github.com/aditya-nair-ds",
+    linkedin: "https://linkedin.com/in/adityanair",
+  },
+];
+
+// Helper to calculate future date in days
+function futureDate(days) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+}
+
+// 15 realistic projects
+const SEED_PROJECTS_DEF = [
+  {
+    title: "Smart Campus Navigation & Interactive Event Map",
+    description:
+      "A high-speed interactive map for new students and visitors to navigate campus buildings, lecture halls, labs, and live campus fest events. We need a frontend teammate to implement the map rendering layer and filter controls for department buildings.",
+    category: "Web Development",
+    targetRole: "Frontend Developer",
+    stage: "In Progress",
+    commitment: "6-8 hrs/week",
+    mode: "Campus / In-Person",
+    requiredSkills: ["React", "JavaScript", "HTML", "CSS"],
+    teamSize: 4,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98111 23456",
+    creatorKey: "aryan",
+    daysUntilDeadline: 14,
+  },
+  {
+    title: "College Canteen Food Pre-Ordering & Queue Buster",
+    description:
+      "Solves the 20-minute rush between lectures by enabling students to browse the daily canteen menu, pre-order meals, and get live token updates. Looking for a backend developer to build robust order validation endpoints and database schemas.",
+    category: "Web Development",
+    targetRole: "Backend Developer",
+    stage: "Planning",
+    commitment: "8-10 hrs/week",
+    mode: "Hybrid",
+    requiredSkills: ["Node.js", "Express", "MongoDB", "Git"],
+    teamSize: 4,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98222 34567",
+    creatorKey: "rohan",
+    daysUntilDeadline: 10,
+  },
+  {
+    title: "Hostel Maintenance & Asset Complaint Desk",
+    description:
+      "A digital tracking system replacing paper complaint registers in student hostels. Students can log electrical, plumbing, or Wi-Fi issues with room tags and track resolution status in real time with automated warden escalations.",
+    category: "Web Development",
+    targetRole: "Full Stack Developer",
+    stage: "In Progress",
+    commitment: "5-7 hrs/week",
+    mode: "Campus / In-Person",
+    requiredSkills: ["React", "Node.js", "SQL", "Express"],
+    teamSize: 3,
+    existingMembersCount: 0,
+    whatsappNumber: "+91 98333 45678",
+    creatorKey: "aryan",
+    daysUntilDeadline: 18,
+  },
+  {
+    title: "Automated Lecture Summarizer & Note Generator using LLMs",
+    description:
+      "An AI tool that ingests audio/video lecture recordings or syllabus PDF documents and produces concise chapter summaries, formula sheets, and self-test flashcards. Need an ML engineer to build embedding pipelines and prompt workflows.",
+    category: "AI/ML",
+    targetRole: "AI / ML Engineer",
+    stage: "Idea",
+    commitment: "8-12 hrs/week",
+    mode: "Remote",
+    requiredSkills: ["Python", "Algorithms", "Data Structures", "Git"],
+    teamSize: 4,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98444 56789",
+    creatorKey: "sneha",
+    daysUntilDeadline: 21,
+  },
+  {
+    title: "Campus Lost and Found Portal with Image Similarity Matching",
+    description:
+      "Students frequently misplace ID cards, calculators, chargers, and notebooks across campus libraries and auditoriums. This portal allows uploaders to post photos of found items and uses image embeddings to notify matching claim requests automatically.",
+    category: "AI/ML",
+    targetRole: "Full Stack Developer",
+    stage: "Planning",
+    commitment: "6-8 hrs/week",
+    mode: "Hybrid",
+    requiredSkills: ["Python", "React", "MongoDB", "JavaScript"],
+    teamSize: 4,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98555 67890",
+    creatorKey: "sneha",
+    daysUntilDeadline: 12,
+  },
+  {
+    title: "HackIndia 2026: Offline Disaster Relief Aid Distribution Platform",
+    description:
+      "Building our submission for the national 36-hour HackIndia hackathon! Our idea coordinates emergency supply distribution in offline or low-connectivity zones using local sync protocols and mesh relays. Looking for a strong problem solver to join our core team.",
+    category: "Hackathon",
+    targetRole: "Full Stack Developer",
+    stage: "Planning",
+    commitment: "Weekend Sprints",
+    mode: "Hybrid",
+    requiredSkills: ["React", "Java", "Data Structures", "Git"],
+    teamSize: 4,
+    existingMembersCount: 2,
+    whatsappNumber: "+91 98666 78901",
+    creatorKey: "rohan",
+    daysUntilDeadline: 7,
+  },
+  {
+    title: "Student Placement Drive & Mock Interview Preparation Tracker",
+    description:
+      "A student dashboard to track on-campus placement schedules, company eligibility criteria, aptitude test dates, and peer-to-peer mock interview practice. Seeking a frontend developer to create intuitive company profile and timeline cards.",
+    category: "Web Development",
+    targetRole: "Frontend Developer",
+    stage: "In Progress",
+    commitment: "5-6 hrs/week",
+    mode: "Hybrid",
+    requiredSkills: ["React", "JavaScript", "HTML", "CSS"],
+    teamSize: 3,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98777 89012",
+    creatorKey: "ananya",
+    daysUntilDeadline: 16,
+  },
+  {
+    title: "Peer-to-Peer Campus Textbook & Lab Equipment Exchange",
+    description:
+      "A platform for senior students to hand down expensive semester textbooks, lab coats, drafting kits, and electronics kits to incoming freshers at fair rates or free exchange. Need a backend dev to build search indexing and verification logic.",
+    category: "Web Development",
+    targetRole: "Backend Developer",
+    stage: "Planning",
+    commitment: "6-8 hrs/week",
+    mode: "Hybrid",
+    requiredSkills: ["Node.js", "Express", "MongoDB", "Git"],
+    teamSize: 4,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98888 90123",
+    creatorKey: "aryan",
+    daysUntilDeadline: 25,
+  },
+  {
+    title: "Campus Electric Shuttle Live GPS Tracking System",
+    description:
+      "Tracks university internal electric shuttles and gives students live estimated arrival times (ETA) at various hostel and department stops. Seeking an enthusiastic mobile developer to build real-time GPS map views.",
+    category: "Mobile",
+    targetRole: "Mobile Developer",
+    stage: "Idea",
+    commitment: "8-10 hrs/week",
+    mode: "Campus / In-Person",
+    requiredSkills: ["React", "Node.js", "Git", "JavaScript"],
+    teamSize: 4,
+    existingMembersCount: 0,
+    whatsappNumber: "+91 98999 01234",
+    creatorKey: "aditya",
+    daysUntilDeadline: 20,
+  },
+  {
+    title: "Automated Course Attendance & Proxy Alert System",
+    description:
+      "An automated system helping course representatives and professors log attendance with QR verification, flagging low attendance thresholds automatically before students get barred from end-semester exams.",
+    category: "Web Development",
+    targetRole: "Full Stack Developer",
+    stage: "In Progress",
+    commitment: "6-9 hrs/week",
+    mode: "Campus / In-Person",
+    requiredSkills: ["Python", "SQL", "Express", "JavaScript"],
+    teamSize: 3,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98123 45678",
+    creatorKey: "rohan",
+    daysUntilDeadline: 11,
+  },
+  {
+    title: "AI Resume Keyword Matcher for College Placement Drives",
+    description:
+      "Parses student resumes and compares them against specific tech job descriptions from visiting campus recruiters (Amazon, Microsoft, TCS, etc.), recommending missing keywords and skill badge improvements before application deadlines.",
+    category: "AI/ML",
+    targetRole: "AI / ML Engineer",
+    stage: "Planning",
+    commitment: "6-8 hrs/week",
+    mode: "Remote",
+    requiredSkills: ["Python", "Algorithms", "Data Structures", "Git"],
+    teamSize: 3,
+    existingMembersCount: 0,
+    whatsappNumber: "+91 98234 56789",
+    creatorKey: "sneha",
+    daysUntilDeadline: 23,
+  },
+  {
+    title: "College Sports Fest Live Scoreboard & Fixture Management",
+    description:
+      "A fast-updating scoreboard and bracket manager for the annual inter-college sports meet (Cricket, Football, Badminton, Basketball). We need a responsive frontend dev to build the live match card and standings table.",
+    category: "Web Development",
+    targetRole: "Frontend Developer",
+    stage: "Polishing",
+    commitment: "4-6 hrs/week",
+    mode: "Hybrid",
+    requiredSkills: ["React", "JavaScript", "HTML", "CSS"],
+    teamSize: 3,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98345 67890",
+    creatorKey: "ananya",
+    daysUntilDeadline: 9,
+  },
+  {
+    title: "Smart Lab Hardware Equipment & Sensor Kit Reservation System",
+    description:
+      "A department inventory management system that lets student project teams reserve Arduino kits, oscilloscope stations, robotic arms, and 3D printers, reducing scheduling conflicts during capstone submissions.",
+    category: "Web Development",
+    targetRole: "Backend Developer",
+    stage: "Planning",
+    commitment: "6-8 hrs/week",
+    mode: "Campus / In-Person",
+    requiredSkills: ["Java", "SQL", "Git", "Node.js"],
+    teamSize: 4,
+    existingMembersCount: 1,
+    whatsappNumber: "+91 98456 78901",
+    creatorKey: "aditya",
+    daysUntilDeadline: 28,
+  },
+  {
+    title: "University Open-Source Club CLI & Timetable Scraping API",
+    description:
+      "An open-source developer project creating a unified terminal CLI and JSON API for student timetables, exam room seatings, and university announcements. Open to all students who want to learn Git workflows and make open-source pull requests.",
+    category: "Open Source",
+    targetRole: "General Collaborator",
+    stage: "In Progress",
+    commitment: "Flexible",
+    mode: "Remote",
+    requiredSkills: ["Python", "C++", "Git", "Algorithms"],
+    teamSize: 5,
+    existingMembersCount: 2,
+    whatsappNumber: "+91 98567 89012",
+    creatorKey: "rohan",
+    daysUntilDeadline: 30,
+  },
+  {
+    title: "Computer Lab Energy & Workstation Monitor",
+    description:
+      "Analyzing power usage and idle compute time across university department computer labs to recommend automated shutdown schedules. Seeking a data analyst to clean power meter logs and construct visual energy savings reports.",
+    category: "Data Science",
+    targetRole: "Data Analyst",
+    stage: "Planning",
+    commitment: "5-7 hrs/week",
+    mode: "Hybrid",
+    requiredSkills: ["Python", "SQL", "Data Structures", "Algorithms"],
+    teamSize: 3,
+    existingMembersCount: 0,
+    whatsappNumber: "+91 98678 90123",
+    creatorKey: "aditya",
+    daysUntilDeadline: 24,
+  },
+];
+
+async function seed() {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    console.error("❌ MONGODB_URI is missing from server/.env");
+    process.exit(1);
+  }
+
+  console.log("Connecting to MongoDB...");
+  await mongoose.connect(uri);
+  console.log("Connected to MongoDB successfully.\n");
+
+  try {
+    // 1. Upsert Seed Users
+    console.log("Seeding student profiles...");
+    const userMap = {};
+    for (const userData of SEED_USERS) {
+      const user = await User.findOneAndUpdate(
+        { clerkId: userData.clerkId },
+        { $set: userData },
+        { upsert: true, new: true }
+      );
+      const key = userData.clerkId.split("_")[2]; // e.g. "aryan", "sneha"
+      userMap[key] = user;
+      console.log(`  ✓ ${user.name} (${user.college})`);
+    }
+
+    // 2. Remove previous seeded projects only (preserves user's personal projects!)
+    const seedUserIds = Object.values(userMap).map((u) => u._id);
+    const deleteResult = await Project.deleteMany({
+      creatorId: { $in: seedUserIds },
+    });
+    console.log(`\nRemoved ${deleteResult.deletedCount} old seeded demo projects (your personal projects remain intact).`);
+
+    // 3. Insert 15 Projects
+    console.log("\nSeeding 15 realistic campus projects...");
+    let projectCount = 0;
+    for (const p of SEED_PROJECTS_DEF) {
+      const creator = userMap[p.creatorKey] || Object.values(userMap)[0];
+      const deadline = futureDate(p.daysUntilDeadline);
+
+      const projectDoc = await Project.create({
+        title: p.title,
+        description: p.description,
+        category: p.category,
+        targetRole: p.targetRole,
+        stage: p.stage,
+        commitment: p.commitment,
+        mode: p.mode,
+        requiredSkills: p.requiredSkills,
+        teamSize: p.teamSize,
+        existingMembersCount: p.existingMembersCount,
+        whatsappNumber: p.whatsappNumber,
+        creatorId: creator._id,
+        members: [creator._id],
+        isOpen: true,
+        deadline,
+      });
+
+      projectCount++;
+      console.log(
+        `  ${projectCount}. [${p.category}] ${p.title} (Role: ${p.targetRole}) — Led by ${creator.name}`
+      );
+    }
+
+    console.log(`\n========================================`);
+    console.log(`🎉 SUCCESS! 15 campus projects seeded.`);
+    console.log(`- 5 realistic student profiles created`);
+    console.log(`- Varied roles, categories, stages & deadlines`);
+    console.log(`- Ready to demonstrate to teachers and evaluators`);
+    console.log(`========================================\n`);
+  } catch (err) {
+    if (err.name === "MongooseServerSelectionError" || err.message?.includes("SSL alert") || err.message?.includes("whitelist")) {
+      console.error("\n❌ MONGODB ATLAS NETWORK ACCESS BLOCKED THIS CONNECTION");
+      console.error("MongoDB Atlas requires your current IP address to be whitelisted:");
+      console.error("1. Go to https://cloud.mongodb.com and open your Cluster");
+      console.error("2. Under 'Security' in the left sidebar, click 'Network Access'");
+      console.error("3. Click 'Add IP Address' -> Select 'Allow Access from Anywhere' (0.0.0.0/0) or 'Add Current IP Address'");
+      console.error("4. Wait 1 minute for Atlas to update, then re-run: npm run seed\n");
+    } else {
+      console.error("❌ Error while seeding database:", err);
+    }
+  } finally {
+    await mongoose.disconnect();
+    console.log("MongoDB connection closed.");
+    process.exit(0);
+  }
+}
+
+seed();

@@ -1,0 +1,89 @@
+import { Link, NavLink, Outlet } from "react-router-dom";
+import { UserButton } from "@clerk/clerk-react";
+import { FolderKanban, GraduationCap, LayoutDashboard, Plus, User } from "lucide-react";
+import NotificationBell from "./NotificationBell.jsx";
+
+const links = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/projects", label: "Projects", icon: FolderKanban },
+  { to: "/projects/create", label: "Create", icon: Plus },
+  { to: "/profile", label: "Profile", icon: User },
+];
+
+export default function Layout() {
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-slate-100 shadow-2xs">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+          {/* Logo */}
+          <Link to="/dashboard" className="flex items-center gap-2 font-semibold text-slate-900">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00072D] text-amber-400 shadow-xs">
+              <GraduationCap size={18} />
+            </span>
+            <span className="hidden sm:inline">CampusConnect</span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-1 md:flex">
+            {links.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === "/projects"}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-white text-[#00072D] font-bold shadow-xs border border-slate-200/80"
+                      : "text-slate-600 hover:bg-slate-200/70 hover:text-slate-900"
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <Icon size={16} className={isActive ? "text-amber-500" : ""} />
+                    {label}
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Right side: bell + user */}
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <UserButton afterSignOutUrl="/sign-in" />
+          </div>
+        </div>
+
+        {/* Mobile bottom nav */}
+        <nav className="flex gap-1 overflow-x-auto border-t border-slate-200 px-2 py-1.5 md:hidden bg-slate-100">
+          {links.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === "/projects"}
+              className={({ isActive }) =>
+                `flex flex-1 flex-col items-center gap-0.5 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-colors ${
+                  isActive
+                    ? "bg-white text-[#00072D] font-bold shadow-xs border border-slate-200/80"
+                    : "text-slate-500 hover:text-slate-900"
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <Icon size={16} className={isActive ? "text-amber-500" : ""} />
+                  {label}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4 py-8">
+        <Outlet />
+      </main>
+    </div>
+  );
+}
